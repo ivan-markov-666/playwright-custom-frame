@@ -1,0 +1,51 @@
+{
+  "name": "playwright-boilerplate",
+  "version": "1.0.0",
+  "description": "To make it easy for you to get started with GitLab, here's a list of recommended next steps.",
+  "main": "index.js",
+  "scripts": {
+    "example:test": "playwright test Example.test.ts",
+    "example:randomized:data": "playwright test RandomTestingDate.test.ts",
+    "lint": "eslint src/tests/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "validate:env": "ts-node ./src/helpers/validateEnv.ts",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/joi": "^17.2.2",
+    "@types/node": "^22.10.0",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "husky": "^9.1.7",
+    "junit-report-merger": "^7.0.0",
+    "lint-staged": "^15.3.0",
+    "mailslurp-client": "^15.20.2",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.16.0",
+    "uuid": "^11.0.3"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.2.0",
+    "@types/app-root-path": "^1.2.8",
+    "app-root-path": "^3.1.0",
+    "cheerio": "^1.0.0",
+    "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "npm-check-updates": "^17.1.11",
+    "odiff-bin": "^3.2.0",
+    "tesseract.js": "^6.0.1"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "npm run lint",
+      "npm run format"
+    ]
+  }
+}

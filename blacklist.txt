@@ -1,0 +1,23 @@
+# These are comments that are ignored
+# Each line is a path to be skipped
+
+# Directories to be skipped recursively
+node_modules
+screenshots
+upload
+.git
+.vscode
+.gitignore
+dist
+build
+coverage
+docs
+
+
+# Specific files to be skipped
+LICENSE
+package-lock.json
+yarn.lock
+blacklist.txt
+output.txt
+todo.txt
