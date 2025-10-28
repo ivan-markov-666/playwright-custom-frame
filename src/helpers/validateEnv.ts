@@ -61,10 +61,6 @@ export interface ValidatedEnv {
     TIMEOUT: number
     /** Slow motion delay in milliseconds */
     SLOW_MO: number
-    /** Whether to run tests in headless mode */
-    HEADLESS: boolean
-    /** Number of test retries on failure */
-    RETRIES: number
 }
 
 // Export validated and typed environment variables
