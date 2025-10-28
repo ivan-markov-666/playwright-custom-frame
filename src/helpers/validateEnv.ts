@@ -26,12 +26,6 @@ const envSchema = Joi.object({
     // Slows down operations by specified milliseconds - useful for debugging
     SLOW_MO: Joi.number().min(0).max(1000).default(0),
     
-    // Run tests in headless mode (optional, default: true)
-    HEADLESS: Joi.boolean().default(true),
-    
-    // Number of test retries on failure (optional, default: 2)
-    RETRIES: Joi.number().min(0).max(5).default(2),
-
     // Permanent address (required)
     PERMANENT_ADDRESS: Joi.string().required(),
 }).unknown(true) // Allow additional env variables that might be added in the future
