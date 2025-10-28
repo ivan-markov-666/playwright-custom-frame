@@ -28,18 +28,6 @@ export class Config {
     readonly slowMo: number
 
     /**
-     * Whether tests should run in headless mode (without visible browser).
-     * Loaded from HEADLESS env variable (default: true)
-     */
-    readonly headless: boolean
-
-    /**
-     * Number of test retries on failure.
-     * Loaded from RETRIES env variable (default: 2)
-     */
-    readonly retries: number
-
-    /**
      * Private constructor - prevents direct instantiation from outside the class.
      * Singleton pattern requires the constructor to be private to ensure
      * that only the getInstance() method can create instances.
@@ -48,8 +36,6 @@ export class Config {
         // Load all configurations from validated environment variables
         this.timeout = env.TIMEOUT
         this.slowMo = env.SLOW_MO
-        this.headless = env.HEADLESS
-        this.retries = env.RETRIES
     }
 
     /**
