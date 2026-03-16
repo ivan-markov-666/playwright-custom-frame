@@ -26,6 +26,7 @@
     "lint-staged": "^15.3.0",
     "mailslurp-client": "^15.20.2",
     "prettier": "^3.4.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.16.0",
     "uuid": "^11.0.3"
