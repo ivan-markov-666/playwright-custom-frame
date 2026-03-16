@@ -8,10 +8,14 @@ upload
 .git
 .vscode
 .gitignore
+.husky
+.prettierrc
 dist
 build
 coverage
 docs
+eslint.config.mjs
+Onboarding.pdf
 
 
 # Specific files to be skipped
