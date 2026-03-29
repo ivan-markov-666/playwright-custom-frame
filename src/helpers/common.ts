@@ -398,6 +398,34 @@ export class Common {
      *     page
      * );
      */
+    async scrollUntilElementVisible(
+        scrollContainerXPath: string,
+        targetElementXPath: string,
+        options: { maxAttempts?: number; scrollTimeout?: number } = {},
+        pageInstance: Page = this.page,
+    ): Promise<void> {
+        const { maxAttempts = 20, scrollTimeout = 1000 } = options
+        try {
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const exists = await this.checkElementExistence(targetElementXPath, pageInstance)
+                if (exists) {
+                    informLog('Target element found after ' + attempt + ' scroll attempts')
+                    return
+                }
+                // Scroll the container down
+                await pageInstance.locator(scrollContainerXPath).evaluate((container) => {
+                    container.scrollBy(0, container.scrollHeight)
+                })
+                await this.delay(scrollTimeout)
+            }
+            throw new Error(
+                `Target element "${targetElementXPath}" not found after ${maxAttempts} scroll attempts`,
+            )
+        } catch (error) {
+            alertLog(this.scrollUntilElementVisible.name + __filename.split(__dirname + '/').pop())
+            throw new Error('Could not scroll until element visible. Received error: ' + error)
+        }
+    }
 
     async scrollToBottom(
         scrollableContainer: Locator | string,
@@ -3957,6 +3985,143 @@ export class Common {
             informLog(
                 `Cleared contents of directory "${path}" without deleting the directory itself.`,
             )
+        }
+    }
+
+    /**
+     * @description             Reads the entire contents of a text file and returns it as a string.
+     * @param filePath          Provide the full path to the text file that you want to read.
+     * @param encoding          Optional. Provide the encoding of the file. Defaults to 'utf-8'.
+     * @returns                 {string} The contents of the file as a string.
+     * @throws                  Throws an error if:
+     *                          - The file does not exist at the specified path.
+     *                          - The file cannot be read due to file system permissions or other issues.
+     *
+     * @usage                   The `readTextFile` function is useful for reading configuration files,
+     *                          test data, exported content, or any text-based file that needs to be
+     *                          processed or validated during test execution.
+     *
+     * @example
+     * // Example 1: Read a simple text file.
+     * const content = readTextFile('./test-data/config.txt');
+     *
+     * // Example 2: Read an SRT subtitle file.
+     * const srtContent = readTextFile('./downloads/subtitle.srt');
+     *
+     * // Example 3: Read a file with specific encoding.
+     * const content = readTextFile('./data/output.csv', 'latin1');
+     */
+    readTextFile(filePath: string, encoding: BufferEncoding = 'utf-8'): string {
+        try {
+            if (!fs.existsSync(filePath)) {
+                throw new Error(`File does not exist at path: ${filePath}`)
+            }
+            const content = fs.readFileSync(filePath, encoding)
+            informLog(`Successfully read file: ${filePath}`)
+            return content
+        } catch (error) {
+            alertLog(this.readTextFile.name + __filename.split(__dirname + '/').pop())
+            throw new Error(`Failed to read text file. Received error: ${error}`)
+        }
+    }
+
+    /**
+     * @description             Writes text content to a file at the specified path.
+     *                          If the parent directory does not exist, it will be created automatically.
+     *                          If the file already exists, it will be overwritten.
+     * @param filePath          Provide the full path where the file should be written.
+     * @param content           Provide the text content to write to the file.
+     * @param encoding          Optional. Provide the encoding for the file. Defaults to 'utf-8'.
+     * @throws                  Throws an error if:
+     *                          - The file cannot be written due to file system permissions or other issues.
+     *                          - The parent directory cannot be created.
+     *
+     * @usage                   The `writeTextFile` function is useful for saving test results,
+     *                          generating configuration files, exporting processed data, or creating
+     *                          any text-based file during test execution.
+     *
+     * @example
+     * // Example 1: Write a simple text file.
+     * writeTextFile('./output/result.txt', 'Test passed successfully');
+     *
+     * // Example 2: Write a lyrics file from processed SRT content.
+     * writeTextFile('./audio/vocal/lyrics.txt', cleanedLyrics);
+     *
+     * // Example 3: Write a file with specific encoding.
+     * writeTextFile('./data/export.csv', csvContent, 'latin1');
+     */
+    writeTextFile(filePath: string, content: string, encoding: BufferEncoding = 'utf-8'): void {
+        try {
+            const directory = path.dirname(filePath)
+            if (!fs.existsSync(directory)) {
+                fs.mkdirSync(directory, { recursive: true })
+            }
+            fs.writeFileSync(filePath, content, encoding)
+            informLog(`Successfully wrote file: ${filePath}`)
+        } catch (error) {
+            alertLog(this.writeTextFile.name + __filename.split(__dirname + '/').pop())
+            throw new Error(`Failed to write text file. Received error: ${error}`)
+        }
+    }
+
+    /**
+     * @description             Recursively copies all contents from a source directory to a destination directory.
+     *                          If the destination directory does not exist, it will be created automatically.
+     *                          Existing files in the destination with the same name will be overwritten.
+     *                          This function merges the source contents into the destination, preserving
+     *                          any existing files in the destination that do not conflict.
+     * @param source            Provide the full path to the source directory to copy from.
+     * @param destination       Provide the full path to the destination directory to copy to.
+     * @throws                  Throws an error if:
+     *                          - The source directory does not exist.
+     *                          - The source path is not a directory.
+     *                          - A file or folder cannot be copied due to permissions or other file system issues.
+     *
+     * @usage                   The `copyDirectoryRecursive` function is useful for copying preset templates,
+     *                          duplicating test fixture directories, preparing test environments with predefined
+     *                          folder structures, or backing up directory contents before destructive operations.
+     *
+     * @example
+     * // Example 1: Copy a preset template to a project folder.
+     * copyDirectoryRecursive('./presets/trance', './projects/MySong');
+     *
+     * // Example 2: Duplicate a test fixture directory.
+     * copyDirectoryRecursive('./fixtures/baseline', './fixtures/current-run');
+     *
+     * // Example 3: Copy only if the source exists.
+     * const presetPath = './presets/metal';
+     * if (fs.existsSync(presetPath)) {
+     *     copyDirectoryRecursive(presetPath, './output/song-folder');
+     * }
+     */
+    copyDirectoryRecursive(source: string, destination: string): void {
+        try {
+            if (!fs.existsSync(source)) {
+                throw new Error(`Source directory does not exist: ${source}`)
+            }
+            if (!fs.lstatSync(source).isDirectory()) {
+                throw new Error(`Source path is not a directory: ${source}`)
+            }
+            if (!fs.existsSync(destination)) {
+                fs.mkdirSync(destination, { recursive: true })
+            }
+
+            const entries = fs.readdirSync(source, { withFileTypes: true })
+            for (const entry of entries) {
+                const srcPath = path.join(source, entry.name)
+                const destPath = path.join(destination, entry.name)
+
+                if (entry.isDirectory()) {
+                    this.copyDirectoryRecursive(srcPath, destPath)
+                } else {
+                    fs.copyFileSync(srcPath, destPath)
+                }
+            }
+
+            informLog(`Successfully copied directory: ${source} → ${destination}`)
+        } catch (error) {
+            alertLog(this.copyDirectoryRecursive.name + __filename.split(__dirname + '/').pop())
+            throw new Error(`Failed to copy directory recursively. Received error: ${error}`)
         }
     }
 
